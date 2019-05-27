@@ -1,5 +1,4 @@
 // Klaytn IDE uses solidity 0.4.24 version.
-//얼마씩 처 집어넣었는지 랑 점수를 넣지 못한다는 점이 문제네
 //클레이를 받는 부분
 pragma solidity ^0.4.24;
 
@@ -54,8 +53,6 @@ contract GSPB {
     //개인 마다 그룹스터디에 doposite한 KLAY를 저장
     function depostie(uint _index) public payable{
         groupStudyList[_index].payment[msg.sender] = msg.value;
-        //스터디에 해당하는 사람만 보낼 수 있도록 하는 함수는 node.js에서 구현한느것이 좋다.
-        //public로 해놔서 그냥 불서 볼 수 있다.
     }
     function closeStudy(uint _index, uint[] ranking) public returns (bool){
         require(!groupStudyList[_index].live);
@@ -72,7 +69,6 @@ contract GSPB {
             students[target].point = tmp;
             target.transfer(groupStudyList[_index].payment[target]-fee);
         }
-        //클레이 재분배 0.9 만큼 일단 보낸다.
         return true;
         //평가를 web에서 모두 받고 관리자가 마무리를 누르면 오게된다.
     }
