@@ -1,5 +1,4 @@
 # 403LAB
-===========
 
 Group Study Platform App
 -----------------
