@@ -1,11 +1,12 @@
 # 403LAB
-_____Group Study Platform App
-
-_____1. Project Summary
+===========
+Group Study Platform App
+-----------------
+###1. Project Summary
 
 Both in the online and offline communities, there are countless group studies going on globally. In Korea, especially, there are many group studies on language, certificates and programming. We organized the Group Study Platform, BApp. GSPB(Group Study Platform BApp) encourages quality group studies through the blockchain Klaytn and awards good students to motivate them. The studies can be sustained better through this platform, and it provides a healthy environment for group studies by motivating good students to join new studies and taking measures on bad students. 
 
-____2. What is Trying to be Solved Through Blockchain?
+###2. What is Trying to be Solved Through Blockchain?
 
 Cons of Group Studies
 1) There cannot be complete control over participation. No restrictions for the participants. 
@@ -24,7 +25,7 @@ Cons of Group Studies
 
 => Using the public, open-access blockchain accounts, trust is earned and systematic management is possible. 
 
-____3. Main Features of the Service
+###3. Main Features of the Service
 
 1) The GSPB users open new studies and participate to create an ecosystem. 
 
@@ -36,14 +37,14 @@ ____3. Main Features of the Service
 
 5) The records and outputs of the studies and participants can be managed and read.
 
-4. Smart contract
+###4. Smart contract
 When a user creates, participates or evaluates a group study, one can be applied through the smart contract.
 
 
-_____5-1. Explain the business model (if existent). 
+###5-1. Explain the business model (if existent). 
 
 The business model of GSPB is as follows. To participate in GSPB's group study, one needs a certain amount of tokens. According to their participation rate in the group study, the collected tokens are redistributed. The blockchain networks takes part of the interest fee, and the top participants take the profit. 
 
-_____5-2. What is the expected outcome?
+###5-2. What is the expected outcome?
 
 To participate in various studies and have control, the participants need tokens. More tokens are needed, and more activities will follow. Through this system, each group studies and the GSPB ecosystem will be more active, and the tokens will circulate more.
