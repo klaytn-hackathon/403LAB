@@ -51,3 +51,5 @@ The business model of GSPB is as follows. To participate in GSPB's group study, 
 To participate in various studies and have control, the participants need tokens. More tokens are needed, and more activities will follow. Through this system, each group studies and the GSPB ecosystem will be more active, and the tokens will circulate more.
 
 Thank you!
+
+![images.png](./images.png)
