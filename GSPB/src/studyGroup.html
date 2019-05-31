@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Jekyll v3.8.5">
+  <title> GSBP - 그룹 스터디 </title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- 아이콘 스타일 시트 링크 -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .bd-purple {
+      background-color: #313557;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+
+    .modal-dialog.modal-fullsize {
+      width: 100%;
+      height: 80%;
+      margin: 0;
+      padding: 0;
+    }
+
+    .modal-content.modal-fullsize {
+      height: auto;
+      min-height: 100%;
+      border-radius: 0;
+    }
+
+    .modal.modal-center {
+      text-align: center;
+    }
+
+    @media screen and (min-width: 768px) {
+      .modal.modal-center:before {
+        display: inline-block;
+        vertical-align: middle;
+        content: " ";
+        height: 100%;
+      }
+    }
+
+    .modal-dialog.modal-center {
+      display: inline-block;
+      text-align: left;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 헤더 시작 -->
+  <header>
+    <!-- 상단 바 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bd-purple shadow-sm">
+      <a href="/" class="navbar-brand">
+        <i class="fas fa-university"></i>
+        <strong>GSPB</strong>
+      </a>
+
+      <div class="navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active dropdown">
+            <a class="nav-link dropdown-toggle" href="#" style="display: none;" id="navbarDropdown" role="button"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              내 스터디 목록
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <label>&nbsp 참여 스터디</label>
+              <div id="nav-study-list">
+              </div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-secondary" href="/createGroup.html"><i class="far fa-plus-square">&nbsp 새 스터디
+                  개설</i> </a>
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0 mr-sm-2" type="submit">Search</button>
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-outline-light" id="user" onclick="location.href='/userPage.html'"
+              style="display: none;">
+              <i class="fas fa-user"></i>
+              내 계정
+            </button>
+            <button type="button" class="btn btn-outline-light" id="login" data-toggle="modal"
+              data-target="#loginModal">
+              로그인
+            </button>
+            <button type="button" class="btn btn-outline-light" id="logout" style="display: none;"
+              onclick="App.handleLogout()">
+              <i class="fas fa-user"></i>
+              로그아웃
+            </button>
+          </div>
+        </form>
+      </div>
+    </nav>
+  </header>
+
+  <!-- 스피너 추가 -->
+  <div id="spin"></div>
+
+  <!-- 메인 시작 -->
+  <main role="main">
+    <br />
+    <div class="container">
+      <div class="jumbotron p-4 p-md-5 text-white rounded bg-dark">
+        <div class="col-md-6 px-0">
+          <h1 class="display-4 font-italic" id="groupName"></h1>
+          <p class="lead mb-0"><span class="text-white font-weight-bold" id="groupGoal"></span></p>
+          <p class="lead my-3" id="groupInfo"></p>
+        </div>
+      </div>
+
+      <div class="my-3 p-3 bg-white rounded shadow-sm">
+        <h6 class="border-bottom border-gray pb-2 mb-0">그룹 정보</h6>
+
+        <div class="media text-muted pt-3">
+          <strong class="d-block text-gray-dark">그룹 참여도 랭킹</strong>
+        </div>
+        <ol class="text-secondary" id="rangking">
+        </ol>
+
+        <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+        </p>
+
+        <div class="media text-muted pt-3">
+          <strong class="d-block text-gray-dark">게시판</strong>
+
+        </div>
+        <button type="button" class="btn btn-primary float-right" data-toggle="modal" data-target="#exampleModal">게시물
+          작성</button>
+        <br /><br />
+        <ul class="text-secondary" id="groupNoticeList">
+        </ul>
+        <br />
+      </div>
+    </div>
+
+    <!-- 모달 -->
+    <!-- 게시물 작성 -->
+    <!-- Modal -->
+    <div class="modal fade modal-center" id="exampleModal" tabindex="-1" role="dialog"
+      aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-center modal-xl modal-fullsize" role="document">
+        <div class="modal-content modal-fullsize">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <label>제목</label>
+            <input type="text" class="form-control" id="postsTitle" aria-describedby="basic-addon3">
+
+            <label>내용</label>
+            <textarea class="form-control" style="height:300px;" id="postsMain" aria-label="With textarea"></textarea>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            <button type="button" class="btn btn-primary" onclick="App.writePosts()">작성</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 게시물 보기 -->
+    <!-- Modal -->
+    <div class="modal fade modal-center" id="notice" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+      aria-hidden="true">
+      <div class="modal-dialog modal-center modal-xl modal-fullsize" role="document">
+        <div class="modal-content modal-fullsize">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div>
+              <label id="noticeTitle">제목 : </label><br />
+            </div>
+            <p class="media-body pb-3 mb-0 small lh-125 border-bottom border-gray">
+              <div>
+                <br />
+                <p id="noticeText">test</p>
+              </div>
+          </div>
+          <div class="modal-footer">
+
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="customRadioInline1" name="scoreRadio" value="1" class="custom-control-input">
+              <label class="custom-control-label" for="customRadioInline1">1</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="customRadioInline2" name="scoreRadio" value="2" class="custom-control-input">
+              <label class="custom-control-label" for="customRadioInline2">2</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="customRadioInline3" name="scoreRadio" value="3" class="custom-control-input">
+              <label class="custom-control-label" for="customRadioInline3">3</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="customRadioInline4" name="scoreRadio" value="4" class="custom-control-input">
+              <label class="custom-control-label" for="customRadioInline4">4</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+              <input type="radio" id="customRadioInline5" name="scoreRadio" value="5" class="custom-control-input">
+              <label class="custom-control-label" for="customRadioInline5">5</label>
+            </div>
+
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">닫기</button>
+            <button type="button" class="btn btn-primary" onclick="App.sendLog()">작성</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 자바스크립트 모음 -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous">
+  </script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous">
+  </script>
+
+  <script src="//code.jquery.com/jquery.min.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+  <script src="studyGroup.js"></script>

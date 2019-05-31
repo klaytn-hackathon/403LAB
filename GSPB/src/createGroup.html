@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Jekyll v3.8.5">
+  <title> GSBP - 그룹 스터디 </title>
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- 아이콘 스타일 시트 링크 -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .bd-purple {
+      background-color: #313557;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+  <!-- 달력 UI -->
+  <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+
+</head>
+
+<body>
+  <!-- 상단 헤더 시작 -->
+  <header>
+    <!-- 상단 바 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bd-purple shadow-sm">
+      <a href="/" class="navbar-brand">
+        <i class="fas fa-university"></i>
+        <strong>GSPB</strong>
+      </a>
+
+      <div class="navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active dropdown">
+            <a class="nav-link dropdown-toggle" href="#" style="display: none;" id="navbarDropdown" 
+                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+              내 스터디 목록 
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">                
+              <label>&nbsp 참여 스터디</label>
+              <div id="nav-study-list">
+              </div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-secondary" href="/createGroup.html"><i class="far fa-plus-square">&nbsp 새 스터디 개설</i> </a>
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0 mr-sm-2" type="submit">Search</button>
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-outline-light" id="user" onclick="location.href='/userPage.html'" style="display: none;">
+              <i class="fas fa-user"></i>
+              내 계정
+            </button>
+            <button type="button" class="btn btn-outline-light" id="login" data-toggle="modal" data-target="#loginModal">            
+              로그인
+            </button>
+            <button type="button" class="btn btn-outline-light" id="logout" style="display: none;"
+              onclick="App.handleLogout()">
+              <i class="fas fa-user"></i>
+              로그아웃
+            </button>
+          </div>
+        </form>
+      </div>
+    </nav>
+  </header>
+  
+  <!-- 스피너 추가 -->
+  <div id="spin"></div>
+
+  <!-- 메인 시작 -->
+  <main role="main">
+    <div class="container">
+      <br/>
+      <div class="row">
+        <div class="col-md-8 order-md-1">
+          <h2 class="mb-3">스터디 제작 양식</h2>
+
+          <div class="mb-3 d-block">
+            <label for="text">스터디 명</label>
+            <input type="text" class="form-control" id="studyName" placeholder="스터디의 이름을 기입하세요.">
+          </div>
+
+          <div class="mb-3 d-block">
+            <label for="text">목표</label>
+            <input type="text" class="form-control" id="studyGoal" placeholder="스터디의 목적에 대해 쓰세요.">
+          </div>
+
+          <div class="mb-3 d-block">
+            <label for="text">스터디 소개</label>
+            <textarea type="textarea" class="form-control" id="studyIntro" placeholder="스터디를 구체적으로 설명해 주세요."></textarea>
+          </div>
+
+          <div class="mb-3 d-block">
+            <label for="text">스터디 기간</label><br/>                 
+            <input type="text" id="datepicker1"> ~ <input type="text" id="datepicker2">
+          </div>
+
+          <div class="mb-3 d-block">
+            <label for="text">참여 제한 평점</label><br/>       
+            <input type="number" class="form-control" id="studentLimit" min="0" max="100" placeholder="0~100 사이의 수를 입력해 주세요.">
+          </div>
+
+          <hr class="mb-4">
+          <button class="btn btn-primary btn-lg btn-block" type="submit" onclick="App.createTempGroup()">모집 공고 등록</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 자바스크립트 모음 -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+ 
+  <script src="//code.jquery.com/jquery.min.js"></script>
+  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.min.js"></script>
+  <script>
+    $(function() {
+      $( "#datepicker1" ).datepicker({
+        dateFormat: 'yy-mm-dd'
+      });
+    });
+    $(function() {
+      $( "#datepicker2" ).datepicker({
+        dateFormat: 'yy-mm-dd'
+      });
+    });
+  </script>
+
+  <script src="createGroup.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+  <meta name="generator" content="Jekyll v3.8.5">
+  <title> GSBP - 그룹 스터디 </title>
+
+
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+    integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+  <!-- 아이콘 스타일 시트 링크 -->
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css"
+    integrity="sha384-oS3vJWv+0UjzBfQzYUhtDYW+Pj2yciDJxpsK1OYPAYjqT085Qq/1cq5FLXAZQ7Ay" crossorigin="anonymous">
+
+  <style>
+    .bd-placeholder-img {
+      font-size: 1.125rem;
+      text-anchor: middle;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+    }
+
+    .bd-purple {
+      background-color: #313557;
+    }
+
+    @media (min-width: 768px) {
+      .bd-placeholder-img-lg {
+        font-size: 3.5rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 상단 헤더 시작 -->
+  <header>
+    <!-- 상단 바 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bd-purple shadow-sm">
+      <a href="/" class="navbar-brand">
+        <i class="fas fa-university"></i>
+        <strong>GSPB</strong>
+      </a>
+
+      <div class=" navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active dropdown">
+            <a class="nav-link dropdown-toggle" href="#" style="display: none;" id="navbarDropdown" 
+                    role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
+              내 스터디 목록 
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">                
+              <label>&nbsp 참여 스터디</label>
+              <div id="nav-study-list">
+              </div>
+              <div class="dropdown-divider"></div>
+              <a class="dropdown-item text-secondary" href="/createGroup.html"><i class="far fa-plus-square">&nbsp 새 스터디 개설</i> </a>
+            </div>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+          <button class="btn btn-outline-success my-2 my-sm-0 mr-sm-2" type="submit">Search</button>
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-outline-light" id="user" onclick="location.href='/userPage.html'" style="display: none;">
+              <i class="fas fa-user"></i>
+              내 계정
+            </button>
+            <button type="button" class="btn btn-outline-light" id="login" data-toggle="modal" data-target="#loginModal">            
+              로그인
+            </button>
+            <button type="button" class="btn btn-outline-light" id="logout" style="display: none;"
+              onclick="App.handleLogout()">
+              <i class="fas fa-user"></i>
+              로그아웃
+            </button>
+          </div>
+        </form>
+      </div>
+    </nav>
+
+    <!--로그인 패널 modal-->
+    <!--및의 id를 "loginModal"로 해야 위의 버튼과 매치 data-target="#loginModal">-->
+    <div class="modal fade" tabindex="-1" role="dialog" id="loginModal">
+      <!-- modal 크기 작은것으로 변경, modal-sm 클래스 추가-->
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!--모달 헤더 삭제-->
+          <div class="modal-body">
+            <!--바디 부분 삭제-->
+            <div class="form-group">
+              <!-- 키스토어 파일 부르기와 로그인 부분 생성 -->
+              <label for="keystore">Keystore</label>
+              <input type="file" id="keystore" onchange="App.handleImport()">
+              <!-- onchange를 통해 App.handleImport()로 합치기 -->
+            </div>
+
+            <div class="form-group">
+              <label for="input-password">비밀번호</label>
+              <input type="password" class="form-control" id="input-password" onchange="App.handlePassword()">
+
+              <!--JS에서 메시지를 보내 오류나 완료처리를 보여준다. -->
+              <p class="help-block" id="message"></p>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">닫기</button>
+            <button type="button" class="btn btn-dark bd-purple" is="submit" onclick="App.handleLogin()">제출</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
+    <!-- 회원 가입 패널 -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="signupModal">
+      <!-- modal 크기 작은것으로 변경, modal-sm 클래스 추가-->
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <!--모달 헤더 삭제-->
+          <div class="modal-body">
+            <!--바디 부분 삭제-->
+            <div class="form-group">
+              <label for="input-text">사용할 별명</label>
+              <input type="text" class="form-control" id="name" onchange="App.handlePassword()">
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">취소</button>
+            <button type="button" class="btn btn-dark bd-purple" is="submit" onclick="App.submitAnswer()">가입</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+  </header>
+  
+  <!-- 스피너 추가 -->
+  <div id="spin"></div>
+
+  <!-- 메인 시작 -->
+  <main role="main">
+    <section class="jumbotron text-center">
+      <div class="container">
+        <h1 class="jumbotron-heading">G S P B</h1>
+        <h2 class="jumbotron-heading">관심 있는 스터디에 참여하세요</h2>
+      </div>
+    </section>
+
+    <div class="album py-5 text-center">
+      <div class="container">
+        <div class="row" id="simpleGroupIntro">
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+
+
+  <!-- 자바스크립트 모음 -->
+  <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+  <script  src="http://code.jquery.com/jquery-latest.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+    crossorigin="anonymous"></script>
+  <!-- <script src="common.js"></script> -->
+  <script src="index.js"></script>
+</body>
+
+</html>
