@@ -53,3 +53,5 @@ To participate in various studies and have control, the participants need tokens
 Thank you!
 
 ![images.png](./images.png)
+
+동영상 링크 : https://mijuhome.duckdns.org/sharing/fVQmFVoad
