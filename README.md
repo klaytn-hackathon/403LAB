@@ -56,6 +56,8 @@ Thank you!
 
 동영상 링크 : https://mijuhome.duckdns.org/sharing/fVQmFVoad
 
-컨트랙 주소 : 0x3a986ed374b91e5d7ca74cd2135a130b158885b6
+유뷰트 링크 : https://youtu.be/jc2JEIgXers
+
+컨트랙 주소 : 0x01d2d397cd1ffa1e52d1d79de45bced1cdc7c389
 
 @klaytnhackathon
