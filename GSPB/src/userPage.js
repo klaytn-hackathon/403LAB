@@ -192,7 +192,6 @@ const App = {
     var confirmCreateList = await this.getCreateConfirmGroupList(address);
     for(var k in confirmCreateList) {
       var recvData = await this.getContractId(confirmCreateList[k]['id']);
-      console.log(recvData.contractIndex);
       $("#holdCreateGroupList")
       .append('\
           <div class="row text">\
@@ -239,7 +238,7 @@ const App = {
   
   ////////////동작 관련//////////////
 
-  //지불 코드
+  //스터디 그룹에 클레이 지불 코드
   pamentToGroup: async function (contractid, dbid) {
     console.log(contractid);
     const walletInstance = this.getWallet(); //로그인된 계정 정보 호출
@@ -255,6 +254,7 @@ const App = {
           })
           .once('transactionHash', (txHash) => { //비동기 방식으로 정보를 받아올 수 잇다.
             console.log(`txHash: ${txHash}`); //해당 동작의 TX를 받아와 console에 출력
+            alert("거래내역 : " + `${txHash}`); //컨트랙 송금 완료를 알리고
           })
           .once('receipt', async (receipt) => { //영수증 받아오기
             console.log(`(#${receipt.blockNumber})`, receipt); //영수증 출력시 블록에 추가 가능, 따라서 블록 확인가능
@@ -262,24 +262,25 @@ const App = {
             //송금 성고시 스피너 스톱
             spinner.stop();
 
-            console.log(amount + "KLAY를 컨트랙에 송금했습니다."); //컨트랙 송금 완료를 알리고
+
             //스터디의 contractGroup 업데이트
             var status = await App.setPaymentStatus(dbid, walletInstance.address);
-
-            if(status.data)
-              console.log("DB setPaymentStatus update 성공");
-            else
-              console.log("DB setPaymentStatus update 실패");
             
 
-            // location.reload(); //페이지를 새로고침해 컨트랙의 klay잔액을 보여준다.
-            //잔액을 보여줄때 컨트랙의 getBalance()함수를 이용해서 보여준다.
-            //새로고침시 잔액을 표시할 수 있게 처음 호출되는 start()함수에서 changeUI함수 호출하니 changeUI를 변경시킨다.
-
-            //새로고침까지 TX송금 기다리며 보여줄 로드스피너 추가(권장사항)
+            if(status.data)
+            {
+              console.log("DB setPaymentStatus update 성공");
+              alert(amount + "KLAY를 컨트랙에 송금했습니다."); //컨트랙 송금 완료를 알리고
+              location.reload();
+            }
+            else{
+              console.log("DB setPaymentStatus update 실패");
+              location.reload();
+            }
           })
           .once('error', (error) => {
             alert(error.message); //TX기록 실패시 원인 알려줌
+            location.reload();
           });
       }
       return; //amount가 없으면 그냥 종료
@@ -309,7 +310,6 @@ const App = {
     }).then(async function(receipt){
       if(receipt.status){
         spinner.stop();
-        alert("그룹스터디 추가 성공! : "+walletInstance.address + " : " + receipt.transactionHash);
 
         console.log(receipt);
         
@@ -319,9 +319,15 @@ const App = {
         var status = await App.setContractIndex(id, index);
 
         if(status.data)
+        {
           console.log("DB contract index update 성공");
-        else
+          alert("그룹스터디 추가 성공! : "+walletInstance.address + " : " + receipt.transactionHash);
+          location.reload();
+        }
+        else{
           console.log("DB contract index update 실패");
+          location.reload();
+        }
       }
     });
 
@@ -332,109 +338,65 @@ const App = {
     location.href="/studyGroup.html";
   },
 
+  //스터디 마감 버튼 동작
   EndGroup: async function(contractid, dbid) {
-    //컨트랙 인덱스, 랭킹
 
-    var recvArray = await this.getRangking(contractid, dbid);
-    console.log(recvArray);
+    //그룹원들 별 참여 평점 배열 반환[컨트랙 그룹의 학생 Index, 지갑 주소, 평점합, 유저 이름]
+    var recvArray = await this.getGroupAllUserTotalScore(dbid, contractid);
+    //랭킹 배열 만들기 (컨트랙의 그룹 내부 학생  Address 배열)
     var Rangking = [];
     for( var k in recvArray )
     {
-      Rangking.push(parseInt(recvArray[k][0]));
+      Rangking.push(recvArray[k][1]);
     }
-    console.log(contractid);
-    console.log(Rangking);
-    this.closeStudy(contractid, Rangking, dbid);
+    await this.closeStudy(contractid, Rangking, dbid);
   },
+
+  //컨트랙트 스터디 종료 동작 함수
   closeStudy: async function (index, ranking, dbid) {
     // **  함수구현 미완료 테스트 중…
     var spinner = this.showSpinner();
     const walletInstance = this.getWallet();
-    var arr = new Array(ranking);
+    var arr = ranking;
     if (!walletInstance) return;  
+
     agContract.methods.closeStudy(index,arr).send({
          from : walletInstance.address,
          gas : "200000"
-    }).then(async function(receipt){
+    }).once('transactionHash', (txHash) => { //비동기 방식으로 정보를 받아올 수 잇다.
+      console.log(`txHash: ${txHash}`); //해당 동작의 TX를 받아와 console에 출력
+      alert("거래내역 : " + `${txHash}`); //컨트랙 송금 완료를 알리고
+    })
+    .once('receipt', async (receipt) => { //영수증 받아오기
+      console.log(`(#${receipt.blockNumber})`, receipt); //영수증 출력시 블록에 추가 가능, 따라서 블록 확인가능
+
+      spinner.stop();
+
       if(receipt.status){
-        spinner.stop();
-        console.log(dbid);
-        var end = await this.setContractLive(dbid);
-        alert("마감 성공! : "+walletInstance.address + " : " + receipt.transactionHash);
         console.log(receipt);
-      }else{
-        var end = await this.setContractLive(dbid);
+        var status = await this.setContractLive(dbid);
+        console.log("test");
+        console.log(status);
+        if(status.data){
+          console.log("DB setPaymentStatus update 성공");
+          alert("마감 성공! : "+walletInstance.address + " : " + receipt.transactionHash);
+          location.reload();
+        }
+        else{
+          console.log("DB setPaymentStatus update 실패");
+          alert("마감 실패! : "+walletInstance.address + " : " + receipt.transactionHash);
+          location.reload();
+        }
+      } else{
         console.log(recipt)
-        spinner.stop();
+        alert("마감 실패! : "+walletInstance.address + " : " + receipt.transactionHash);
+        location.reload();
       }
     })
-  },
-  //랭킹 가져오기
-  getRangking: async function(contractid, dbid){
-    var contractIndex = contractid;
-
-    //그룹 소속 주소 호출
-    var recvArray = await this.getGroupStudyData(contractIndex);
-    // console.log(recvArray);
-
-    //주소들의 평점 합
-    var recvArray2 = await this.getGroupAllUserTotalScore(dbid, recvArray);
-    await console.log(recvArray2);
-    recvArray2.sort(function(a,b)
-    {
-        return (a[1] - b[1]);
+    .once('error', (error) => {
+      alert(error.message); //TX기록 실패시 원인 알려줌
+      location.reload();
     });
-    console.log(recvArray2);
-
-    return recvArray2;
-
-    }, 
-    getGroupStudyData: function(_index){
-      return agContract.methods.getStudyDate(_index).call();
-    },
-      //평점 합 부르기
-  getGroupAllUserTotalScore: async function(groupid, addressArray){
-    // console.log(addressArray);
-
-    var array = new Array();
-    for( var k in addressArray)
-    {
-      var url = 'http://mijuhome.iptime.org:5333/';
-      var methods = 'getGroupUserTotalScore';
-      var sendArray = {};
-      sendArray['groupid'] = groupid;
-      sendArray['address'] = addressArray[k];
-      var sendData = JSON.stringify(sendArray);
-      var recvData;
-      await $.post(url + methods, {'data' : sendData }, function(data){
-        recvData = JSON.parse(data);
-      });
-      var num = recvData[0]['SUM(noticeScore)'];
-      if(!num)
-        num = 0;
-        
-      var name = await this.getName(addressArray[k]);
-      console.log(name);
-          
-      array.push([k, addressArray[k], num, name.userName]); 
-    } 
-    return array;
-  },
-  getName: async function(address){
-    // console.log(addressArray);
-
-
-    var url = 'http://mijuhome.iptime.org:5333/';
-    var methods = 'getName';
-    var sendArray = {};
-    sendArray['address'] = address;
-    var sendData = JSON.stringify(sendArray);
-    var recvData;
-    await $.post(url + methods, {'data' : sendData }, function(data){
-      recvData = JSON.parse(data);
-    });
-    
-    return recvData[0];
   },
   ////////////동작 관련 끝//////////////
 
@@ -569,7 +531,22 @@ const App = {
     });
     return recvData[0];
   },
+  //해당 지갑에 해당하는 유저명 반환
+  getName: async function(address){
 
+    var url = 'http://mijuhome.iptime.org:5333/';
+    var methods = 'getName';
+    var sendArray = {};
+    sendArray['address'] = address;
+    var sendData = JSON.stringify(sendArray);
+    var recvData;
+    await $.post(url + methods, {'data' : sendData }, function(data){
+      recvData = JSON.parse(data);
+    });
+    
+    return recvData[0];
+  },
+  //스터디 마감 후 스터디의 상태 최신화
   setContractLive: async function(id){
     var url = 'http://mijuhome.iptime.org:5333/';
     var methods = 'setContractLive';
@@ -580,123 +557,49 @@ const App = {
     await $.post(url + methods, {'data' : sendData }, function(data){
       recvData = JSON.parse(data);
     });
-    return recvData[0];
+    return recvData;
+  },
+  
+  //랭킹 가져오기, 해당 그룹 참여원 별로 평점 합 JSON 반환 (배열로 반환 [컨트랙 그룹의 학생 Index, 지갑 주소, 평점합, 유저 이름])
+  getGroupAllUserTotalScore: async function(dbid, contractid){
+    //컨트랙 그룹 소속원의 지갑 주소 배열 호출
+    var addressArray = await this.getGroupStudyData(contractid);
+
+    var array = new Array();
+    for( var k in addressArray)
+    {
+      var url = 'http://mijuhome.iptime.org:5333/';
+      var methods = 'getGroupUserTotalScore';
+      var sendArray = {};
+      sendArray['groupid'] = dbid;
+      sendArray['address'] = addressArray[k];
+      var sendData = JSON.stringify(sendArray);
+      var recvData;
+      await $.post(url + methods, {'data' : sendData }, function(data){
+        recvData = JSON.parse(data);
+      });
+      var num = recvData[0]['SUM(noticeScore)'];
+      if(!num)
+        num = 0;
+        
+      var name = await this.getName(addressArray[k]);
+          
+      array.push([k, addressArray[k], num, name.userName]); 
+    }
+    
+    array.sort(function(a,b)
+    {
+        return (a[2] - b[2]);
+    });
+
+    return array;
+  },
+  //컨트랙에서 스터디 소속원의 지갑 주소 순서대로 받아 오기
+  getGroupStudyData: function(_index){
+    return agContract.methods.getStudyDate(_index).call();
   },
 
  ////////////데이터 관련 끝//////////////////////////////////////////
-
-
-  // changeUI: async function (walletInstance) {
-  //   $('#login').hide(); //로그인 버튼 숨기고
-
-  //   $('#user').show(); //유저 버튼 공개
-  //   $('#logout').show(); //로그아웃 버튼 공개
-  //   $('#navbarDropdown').show(); //내 스터디 목록 공개
-
-  //   //계정 정보 추가
-  //   $('#userWallet').append(walletInstance.address); //계정 지갑 정보 추가
-  //   $('#userBalance').append(cav.utils.fromPeb(await cav.klay.getBalance(walletInstance.address))); //klay잔고
-
-  //   //가입 리스트
-  //   var address = walletInstance.address;
-  //   var sendArray = {};
-  //   sendArray['userAddress'] = address;
-  //   var url = 'http://mijuhome.iptime.org:5333/joinList';
-  //   var sendData = JSON.stringify(sendArray);
-  //   $.post(url, {'data' : sendData }, function (data) {
-  //     var recvData = JSON.parse(data);
-  //     // console.log(recvData);
-      
-  //     //모집 중인 목록
-  //     for(var k in rcvData) {
-  //       $("#tempStudytList").append('\
-  //       <div class="row">\
-  //       <div class="col-sm"> '+
-  //         recvData[k]['studyName']
-  //         + '\
-  //       </div>\
-  //       <div class="col-sm"> '+
-  //         "1klay" //일단 고정
-  //         + '\
-  //       </div>\
-  //       <div class="col-sm">\
-  //         <button class="btn btn-outline-success" type="submit" onclick=App.reservationGroup(' + recvData[k]['id']  + ')>지불</button>\
-  //       </div>\
-  //     </div>' );
-  //    }
-
-  //    //확정 스터디 목록
-  //   //  for(var k in recvData) {
-  //   //   $("#partStudytList").append('\
-  //   //   <div class="row">\
-  //   //   <div class="col-sm"> '+
-  //   //     recvData[k]['studyName']
-  //   //     + '\
-  //   //   </div>\
-  //   //   <div class="col-sm"> '+
-  //   //     "1klay" //일단 고정
-  //   //     + '\
-  //   //   </div>\
-  //   //   <div class="col-sm">\
-  //   //     <button class="btn btn-outline-light" type="submit" disabled>지불</button>\
-  //   //   </div>\
-  //   // </div>' );
-  //   //  }
-  //   });
-
-
-  //   //개설 리스트
-  //   var url2 = 'http://mijuhome.iptime.org:5333/ownList';
-  //   $.post(url2, {'data' : sendData }, function (data) {
-  //     var recvData = JSON.parse(data);
-  //     // console.log(recvData);
-
-  //     //모집 중인 스터디
-  //     for(var k in recvData) {
-  //       $("#ownStudytList").append('\
-  //       <div class="row">\
-  //       <div class="col-sm"> '+
-  //         recvData[k]['studyName']
-  //         + '\
-  //       </div>\
-  //       <div class="col-sm"> '+
-  //         "1klay" //일단 고정
-  //         + '\
-  //       </div>\
-  //       <div class="col-sm">\
-  //         <button class="btn btn-outline-success" type="submit" onclick="App.submitAddGroupStudy(' 
-  //         + recvData[k]['id'] + ', ' + recvData[k]['studentLimit']
-  //         +')">신청 종료</button>\
-  //       </div>\
-  //     </div>' );
-  //    }
-  //    //모집 완료 스터디
-  //   });
-  // },
-
-  // reservationGroup: function(groupindex){
-  //   var walletInstance = this.getWallet();
-  //   var address = walletInstance.address;
-
-    
-  //   //가입 리스트
-  //   var address = walletInstance.address;
-  //   var sendArray = {};
-  //   sendArray['userAddress'] = address;
-  //   sendArray['groupIndex'] = groupindex;
-
-    
-  //   var url = 'http://mijuhome.iptime.org:5333/reservationGroup';
-  //   var sendData = JSON.stringify(sendArray);
-  //   $.post(url, {'data' : sendData }, function (data) {
-  //     // var recvData = JSON.parse(data);
-  //     if(data.data === "true")
-  //       alert("클레이 지불 예약 성공")
-  //     if(data.data === "false")
-  //     alert("클레이 지불 예약 실패")
-  //   });
-  // },
-
 
 };
 
