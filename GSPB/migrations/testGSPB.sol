@@ -71,13 +71,38 @@ contract testGSPB {
         //스터디에 해당하는 사람만 보낼 수 있도록 하는 함수는 node.js에서 구현한느것이 좋다.
         //public로 해놔서 그냥 불서 볼 수 있다.
     }
-    function closeStudy(uint _index, uint[] ranking) public {
+
+    // function closeStudy(uint _index, uint[] ranking) public {
+    //     require(groupStudyList[_index].live);
+    //     //ranking이 순위대로 왔다고 생가가하고 분배를 한다. [2,3,1,0]
+    //     require(msg.sender==groupStudyList[_index].studyOwner);
+    //     uint tmp = groupStudyList[_index].point;
+    //     for(uint i = 0; i < ranking.length; i++){
+    //         address target = groupStudyList[_index].participants[ranking[i]];
+    //         uint fee = (groupStudyList[_index].payment[target])/10; //fee is 10%
+    //         if (i == ranking.length-1){
+    //             students[target].point = tmp;
+    //         }
+    //         tmp = tmp/2;
+    //         students[target].point = tmp;
+    //         target.transfer(groupStudyList[_index].payment[target]-fee);
+    //     }
+    //     groupStudyList[_index].point = tmp;
+
+    //     groupStudyList[_index].live = false;
+    //     //클레이 재분배 0.9 만큼 일단 보낸다.
+    //     //평가를 web에서 모두 받고 관리자가 마무리를 누르면 오게된다.
+    //     // return true
+    // }
+    
+    function closeStudy(uint _index, address[] ranking) public{
         require(groupStudyList[_index].live);
         //ranking이 순위대로 왔다고 생가가하고 분배를 한다. [2,3,1,0]
         require(msg.sender==groupStudyList[_index].studyOwner);
+        uint returnKlay = 0;
         uint tmp = groupStudyList[_index].point;
         for(uint i = 0; i < ranking.length; i++){
-            address target = groupStudyList[_index].participants[ranking[i]];
+            address target = ranking[i];
             uint fee = (groupStudyList[_index].payment[target])/10; //fee is 10%
             if (i == ranking.length-1){
                 students[target].point = tmp;
@@ -85,12 +110,11 @@ contract testGSPB {
             tmp = tmp/2;
             students[target].point = tmp;
             target.transfer(groupStudyList[_index].payment[target]-fee);
+            returnKlay += groupStudyList[_index].payment[target]-fee;
         }
-        groupStudyList[_index].point = tmp;
-
+        groupStudyList[_index].point = 0;
         groupStudyList[_index].live = false;
         //클레이 재분배 0.9 만큼 일단 보낸다.
         //평가를 web에서 모두 받고 관리자가 마무리를 누르면 오게된다.
-        // return true
     }
 }
