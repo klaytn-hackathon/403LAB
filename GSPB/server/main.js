@@ -16,13 +16,29 @@ app.use(cors());
 //DB 연동
 var mysql = require('mysql');
 var db_config = require('./config/db-config.json');
-var connection = mysql.createConnection({
-  host: db_config.host,
-  user: db_config.user,
-  password: db_config.password,
-  port: db_config.port,
-  database: db_config.database
-});
+global.connection = mysql.createConnection(db_config);
+handleDisconnect(global.connection);
+
+function handleDisconnect(client) {
+  client.on('error', function (error) {
+
+    if (!error.fatal) return;
+
+    if (error.code !== 'PROTOCOL_CONNECTION_LOST') throw err;
+
+
+
+    console.error('> Re-connecting lost MySQL connection: ' + error.stack);
+
+    global.connection = mysql.createConnection(db_config);
+
+    handleDisconnect(global.connection);
+
+    global.connection.connect();
+
+  });
+};
+
 
 //REST API 처리 목록 (나중에 겹치는 것 통합할 수 있음, 함수에서 methods변수를 통해 if-else로 처리)
 
@@ -47,7 +63,7 @@ app.post('/getUserConfirmGroupList', function (req, res) {
 
   var data = JSON.parse(req.body.data);
   var address = data.userAddress;
-  var query = "SELECT id, studyName, studyGoal FROM `Klaytn-DB`.tempGroup	WHERE(id in (SELECT groupid FROM `Klaytn-DB`.userGroupList WHERE userAddress= ? and paymentStatus=1 ) and contractIndex IS NOT NULL);";
+  var query = "SELECT id, studyName, studyGoal FROM `Klaytn-DB`.tempGroup	WHERE(id in (SELECT groupid FROM `Klaytn-DB`.userGroupList WHERE userAddress= ? and paymentStatus=1 ) and contractIndex IS NOT NULL and contractLive = 1);";
   var params = [address];
 
   connection.query(query, params, function (err, rows, fields) {
@@ -391,37 +407,39 @@ app.post('/setPaymentStatus', function (req, res) {
     }
   });
 
-  
-  app.post('/setContractLive', function (req, res) {
-    var functionName = 'setContractLive';
-    console.log("CALL : " + functionName + " API");
-  
-    var data = JSON.parse(req.body.data);
-    var query = "UPDATE `Klaytn-DB`.`tempGroup` SET `contractLive` = 0 WHERE (`id` = ?);";
-    var params = [data.id];
-  
-    connection.query(query, params, function (err, rows, fields) {
-      if (!err) {
-        if (rows.changedRows !== 0)
-          res.json(JSON.stringify({
-            data: true
-          }));
-        else
-          res.json(JSON.stringify({
-            data: false
-          }));
-        console.log("COMPLETE : " + functionName + " API\n");
-      } else {
-        res.json(JSON.stringify({
-          data: false
-        }));
-        console.log('Error while performing Query.', err);
-      }
-    });
-  });
+
 
 });
 
+  
+app.post('/setContractLive', function (req, res) {
+  var functionName = 'setContractLive';
+  console.log("CALL : " + functionName + " API");
+
+  var data = JSON.parse(req.body.data);
+  var query = "UPDATE `Klaytn-DB`.`tempGroup` SET `contractLive` = 0 WHERE (`id` = ?);";
+  var params = [data.id];
+
+  connection.query(query, params, function (err, rows, fields) {
+    console.log(rows);
+    if (!err) {
+      if (rows.changedRows !== 0)
+        res.json(JSON.stringify({
+          data: true
+        }));
+      else
+        res.json(JSON.stringify({
+          data: false
+        }));
+      console.log("COMPLETE : " + functionName + " API\n");
+    } else {
+      res.json(JSON.stringify({
+        data: false
+      }));
+      console.log('Error while performing Query.', err);
+    }
+  });
+});
 ////userPage.js 끝//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
